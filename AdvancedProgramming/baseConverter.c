@@ -61,7 +61,7 @@ void base_conv(char array[24], int b1, int b2)
 }
 
 int main(int argc, char* argv[]){
-    char array[24] = "\0";
+    char array[24] = "194";
     int b1 = 0;
     int b2 = 0;
     int opt;
@@ -72,15 +72,15 @@ int main(int argc, char* argv[]){
         switch (opt)
         {
             case 'i':
-            b1 = optarg;
+            b1 = atoi(optarg);
             break;
             case 'o':
-            b2 = optarg;
+            b2 = atoi(optarg);
             break;
         }
     }
     //base_conv(argv[optind], b1, b2);
-    base_conv(array, b1, b2);//doesnt work with the number as parametr
+    base_conv(argv[optind], b1, b2);//doesnt work with the number as parametr
     //you need to put the number in to the array and then pass the array into the function
     return 0;
 }
