@@ -31,13 +31,15 @@ typedef struct ppm_struct {
 void allocateMemory(ppm_t * image);
 void freeMemory(ppm_t * image);
 void getAsciiPixels(ppm_t * image, FILE * file_ptr);
-void putAsciiPixels(ppm_t * image, FILE * file_ptr);
+void putAsciiPixels(const ppm_t * image, FILE * file_ptr);
 void getBinaryPixels(ppm_t * image, FILE * file_ptr);
-void putBinaryPixels(ppm_t * image, FILE * file_ptr);
+void putBinaryPixels(const ppm_t * image, FILE * file_ptr);
 void readImageFile(char * filename, ppm_t * image);
 void writeImageFile(char * filename, const ppm_t * image);
 void getNegativeImage(ppm_t * image);
-void swap(ppm_t * first, ppm_t * second , ppm_t * temp);
-void rotate90(ppm_t * image, ppm_t * temp);
+void transpose(ppm_t * image);
+void revColumns(ppm_t * image);
+void rotation(ppm_t * image);
+void rotate(ppm_t * image);
 
 #endif  /* NOT PPMS_H */

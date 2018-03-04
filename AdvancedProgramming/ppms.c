@@ -36,7 +36,7 @@ void getAsciiPixels(ppm_t * image, FILE * file_ptr)
     }
 }
 
-void putAsciiPixels(ppm_t * image, FILE * file_ptr){
+void putAsciiPixels(const ppm_t * image, FILE * file_ptr){
     for (int r=0; r<image->height; r++)
     {
         for (int c=0; c<image->width; c++)
@@ -54,7 +54,7 @@ void getBinaryPixels(ppm_t * image, FILE * file_ptr)
     fread(image->pixels[0], sizeof(pixel_t), image->width * image->height, file_ptr);
 }
 
-void putBinaryPixels(ppm_t * image, FILE * file_ptr)
+void putBinaryPixels(const ppm_t * image, FILE * file_ptr)
 {
     //WRITE ALL THE DATA IN THE FILE READEN
     fwrite(image->pixels[0], sizeof(pixel_t), image->width * image->height, file_ptr);
@@ -125,8 +125,9 @@ void getNegativeImage(ppm_t * image){
         {
             printf("%hu ", image->pixels[r][c].data[R]);
             printf("%hu ", image->pixels[r][c].data[G]);
-            printf("%hu\n", image->pixels[r][c].data[B]);
+            printf("%hu   ", image->pixels[r][c].data[B]);
         }
+        printf("\n");
     }
     printf("\n");
     //DECREMENT THE MAX VALUE FORM EACH PIXEL
@@ -147,46 +148,61 @@ void getNegativeImage(ppm_t * image){
         {
             printf("%hu ", image->pixels[r][c].data[R]);
             printf("%hu ", image->pixels[r][c].data[G]);
-            printf("%hu\n", image->pixels[r][c].data[B]);
+            printf("%hu   ", image->pixels[r][c].data[B]);
         }
+        printf("\n");
     }
 }
 
-void swap(ppm_t * first, ppm_t * second , ppm_t * temp){
+void transpose(ppm_t * image){
+    short temp;
     //THE SWAP FOR EACH PIXEL IN THE MATRIX
-    for (int r=0; r<(first->height); r++)
+    for (int r=0; r<image->height; r++)
     {
-        for (int c=0; c<first->width; c++)
+        for (int c=r; c<image->width; c++)
         {
-            temp->pixels[r][c].data[R] = first->pixels[r][c].data[R];
-            temp->pixels[r][c].data[G] = first->pixels[r][c].data[G];
-            temp->pixels[r][c].data[B] = first->pixels[r][c].data[B];
+            temp = image->pixels[r][c].data[R];
+            image->pixels[r][c].data[R] = image->pixels[c][r].data[R];
+            image->pixels[c][r].data[R] = temp;
+
+            temp = image->pixels[r][c].data[G];
+            image->pixels[r][c].data[G] = image->pixels[c][r].data[G];
+            image->pixels[c][r].data[G] = temp;
+
+            temp = image->pixels[r][c].data[B];
+            image->pixels[r][c].data[B] = image->pixels[c][r].data[B];
+            image->pixels[c][r].data[B] = temp;
         }
     }
-    //temp->pixels = first->pixels;
-    for (int r=0; r<first->height; r++)
+}
+void revColumns(ppm_t * image){
+    short temp;
+    //CHANGE THE COLUMNS TO THE RIGHT POSITION
+    for (int r=0; r<image->height; r++)
     {
-        for (int c=0; c<first->width; c++)
+        for(int c = 0, k = (image->height) - 1; c < k; c++, k--)
         {
-            first->pixels[r][c].data[R] = second->pixels[r][c].data[R];
-            first->pixels[r][c].data[G] = second->pixels[r][c].data[G];
-            first->pixels[r][c].data[B] = second->pixels[r][c].data[B];
+            temp = image->pixels[c][r].data[R];
+            image->pixels[c][r].data[R] = image->pixels[k][r].data[R];
+            image->pixels[k][r].data[R] = temp;
+
+            temp = image->pixels[c][r].data[G];
+            image->pixels[c][r].data[G] = image->pixels[k][r].data[G];
+            image->pixels[k][r].data[G] = temp;
+
+            temp = image->pixels[c][r].data[B];
+            image->pixels[c][r].data[B] = image->pixels[k][r].data[B];
+            image->pixels[k][r].data[B] = temp;
         }
     }
-    //first->pixels = second->pixels;
-    for (int r=0; r<first->height; r++)
-    {
-        for (int c=0; c<first->width; c++)
-        {
-            second->pixels[r][c].data[R] = temp->pixels[r][c].data[R];
-            second->pixels[r][c].data[G] = temp->pixels[r][c].data[G];
-            second->pixels[r][c].data[B] = temp->pixels[r][c].data[B];
-        }
-    }
-    //second->pixels = temp->pixels;
 }
 
-void rotate90(ppm_t * image, ppm_t * temp){
+void rotation(ppm_t * image){
+    transpose(image);
+    revColumns(image);
+}
+
+void rotate(ppm_t * image){
     //FIRST PRINT THE MATRIX
     for (int r=0; r<image->height; r++)
     {
@@ -194,18 +210,26 @@ void rotate90(ppm_t * image, ppm_t * temp){
         {
             printf("%hu ", image->pixels[r][c].data[R]);
             printf("%hu ", image->pixels[r][c].data[G]);
-            printf("%hu\n", image->pixels[r][c].data[B]);
+            printf("%hu   ", image->pixels[r][c].data[B]);
         }
+        printf("\n");
     }
     printf("\n");
-    //SWAP THE FIRST WITH THE LAST FROM FIRST ROW
-    //SWAP THE FIRST WITH THE LAST FROM THE LAST ROW
-    //SWAP THE FIRST WITH THE FIRT FROM THE LAST ROW
-    for (int r=0; r<image->height; r++)
-    {
-        swap(&image->pixels[r][r], &image->pixels[r][image->height], &temp);
-        swap(&image->pixels[r][r], &image->pixels[(image->height)-1][(image->height)-1], &temp);
-        swap(&image->pixels[r][r], &image->pixels[(image->height)-1][r], &temp);
+    int grades;
+    printf("90 180 270? \n");
+    scanf("%i", &grades);
+    if (grades == 90) {
+        rotation(image);
+    }else if(grades == 180){
+        rotation(image);
+        rotation(image);
+    }else if (grades == 270) {
+        rotation(image);
+        rotation(image);
+        rotation(image);
+    }else{
+        printf("WRONG!\n");
+        return;
     }
     printf("\n");
     //PRINT THE MATRIX
@@ -215,8 +239,9 @@ void rotate90(ppm_t * image, ppm_t * temp){
         {
             printf("%hu ", image->pixels[r][c].data[R]);
             printf("%hu ", image->pixels[r][c].data[G]);
-            printf("%hu\n", image->pixels[r][c].data[B]);
+            printf("%hu   ", image->pixels[r][c].data[B]);
         }
+        printf("\n");
     }
 }
 
@@ -225,12 +250,11 @@ int main(){
     ppm_t * pointer;
     pointer = malloc (sizeof(ppm_t));
     //MAKE A TEMPORAL IMAGE
-    ppm_t * temp;
-    temp = malloc (sizeof(ppm_t));
     readImageFile("imagen.ppm", pointer);
-    rotate90(pointer, temp);
+    rotate(pointer);
     //getNegativeImage(pointer);
-    //writeImageFile("imga.ppm", pointer);
-
+    writeImageFile("imga.ppm", pointer);
+    //free(pointer);
+    freeMemory(pointer);
     return 0;
 }
